@@ -109,4 +109,98 @@
   
   ```
 
+  ## 小样本示例模版化
   
+  * 示例
+  
+    ```python
+    #gg%%
+    import os
+    from langchain_openai import ChatOpenAI
+    from langchain.prompts import FewShotChatMessagePromptTemplate,ChatPromptTemplate
+    from IPython.display import display,display_markdown
+    from pydantic import SecretStr
+    from langchain.schema.messages import (SystemMessage,HumanMessage)
+    from dotenv import load_dotenv
+    # 加载 .env 文件
+    load_dotenv()
+    
+    # %%
+    model=ChatOpenAI(model="qwen-turbo",
+                     api_key=SecretStr(os.getenv("DASHSCOPE_API_KEY")),
+                     base_url=os.getenv("BASE_URL"),
+                     temperature=0.3,
+                     frequency_penalty=1.5
+                    )
+    
+    # %%
+    # 定义example_prompt
+    example_prompt = ChatPromptTemplate.from_messages(
+        [
+            ("human", "格式化以下客户信息:\n姓名 -> {customer_name}\n年龄 -> {customer_age}\n城市 -> {customer_city}"),
+            ("ai", "##客户信息\n- 客户姓名: {formatted_name}\n- 客户年龄: {formatted_age}\n- 客户所在地: {formatted_city}")
+        ]
+    )
+    
+    
+    
+    # %%
+    examples = [
+        {
+            "customer_name": "张三",
+            "customer_age": "27",
+            "customer_city": "长沙",
+            "formatted_name": "张三",
+            "formatted_age": "27岁",
+            "formatted_city": "湖南省长沙市"
+        },
+        {
+            "customer_name": "李四",
+            "customer_age": "42",
+            "customer_city": "广州",
+            "formatted_name": "李四",
+            "formatted_age": "42岁",
+            "formatted_city": "广东省广州市"
+        },
+        {
+             "customer_name": "王五",
+            "customer_age": "35",
+            "customer_city": "长沙",
+            "formatted_name": "王五",
+            "formatted_age": "35岁",
+            "formatted_city": "湖南省长沙市"
+        }
+    ]
+    
+    
+    # %%
+    # 定义few_shot_template
+    few_shot_template = FewShotChatMessagePromptTemplate(
+        example_prompt=example_prompt,
+        examples=examples,
+    )
+    
+    # %%
+    final_prompt_template=ChatPromptTemplate.from_messages(
+        [
+            few_shot_template,
+            ("human","{input}"),
+        ]
+    )
+    
+    # %%
+    final_prompt=final_prompt_template.invoke(
+        {
+            "input":"格式化以下客户信息:\n姓名 -> 刘六\n年龄 -> 28\n城市 -> 南通"
+        }
+    )
+    final_prompt.to_messages()
+    
+    # %%
+    response=model.invoke(
+        final_prompt
+    )
+    display_markdown(response.content,raw=True)
+    ```
+  
+    
