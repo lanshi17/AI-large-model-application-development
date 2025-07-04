@@ -367,3 +367,55 @@
   ```
 
   
+
+## LCEL(langchain表达式语言)
+
+- 示例
+
+  ```python
+  import os
+  from langchain_openai import ChatOpenAI  # 导入 ChatOpenAI 类，用于与 OpenAI 的对话模型交互
+  from langchain.prompts import FewShotChatMessagePromptTemplate, ChatPromptTemplate  # 导入聊天消息提示模板类
+  from langchain.output_parsers import CommaSeparatedListOutputParser, PydanticOutputParser  # 导入输出解析器类
+  from pydantic import BaseModel, Field  # 导入 Pydantic 的 BaseModel 和 Field 类
+  from typing import List  # 导入 List 类型注解
+  from IPython.display import display, display_markdown, display_json  # 导入 IPython 的显示函数
+  from pydantic import SecretStr  # 导入 Pydantic 的 SecretStr 类，用于处理敏感信息
+  from dotenv import load_dotenv  # 导入 load_dotenv 函数，用于加载 .env 文件中的环境变量
+  
+  # 加载 .env 文件以获取环境变量
+  load_dotenv()
+  
+  # 初始化 ChatOpenAI 模型，使用从环境变量中获取的 API 密钥和其他参数
+  model = ChatOpenAI(
+      model="qwen-turbo",  # 指定使用的模型名称
+      api_key=SecretStr(os.getenv("DASHSCOPE_API_KEY")),  # 使用 SecretStr 包装 API 密钥以提高安全性
+      base_url=os.getenv("BASE_URL"),  # 设置 API 的基础 URL
+      temperature=0.3,  # 设置生成文本的随机性程度
+      frequency_penalty=1.5  # 设置重复惩罚因子
+  )
+  
+  # 定义聊天提示模板，包含系统消息和人类消息
+  prompt = ChatPromptTemplate.from_messages([
+      ("system", "{parser_instructions}"),  # 系统消息部分，将使用输出解析器的格式说明
+      ("human", "列出5个{subject}色系的hex编码")  # 人类消息部分，用户请求的内容
+  ])
+  
+  # 创建逗号分隔列表输出解析器，并获取格式说明
+  output_parser = CommaSeparatedListOutputParser()
+  parser_instructions = output_parser.get_format_instructions()
+  
+  # 使用管道操作符连接提示模板、模型和输出解析器，并调用 invoke 方法
+  # 这一步会将提示、模型和解析器组合在一起，然后执行模型调用
+  # 最终输出的结果是根据提示生成的文本经过解析器解析后的结果
+  result = (prompt | model | output_parser).invoke(
+      {"subject": "莫兰迪",  # 替换 {subject} 为具体的色系名称
+       "parser_instructions": parser_instructions}  # 将格式说明传递给系统消息
+  )
+  
+  # 打印或展示结果（如果是在 Jupyter Notebook 中运行）
+  print(result)
+  ```
+
+  
+
