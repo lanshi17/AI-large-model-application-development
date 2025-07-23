@@ -38,7 +38,7 @@ def generate_script(subject, video_length, creativity, api_key):
     ])
     # 初始化大模型
     model = ChatOpenAI(model="qwen-turbo",
-                      api_key=SecretStr(api_key),
+                      api_key=SecretStr(os.getenv("OPENAI_API_KEY")),  # 从环境变量获取API密钥
                       base_url=os.getenv("BASE_URL"),
                       temperature=creativity,
                       frequency_penalty=1.5

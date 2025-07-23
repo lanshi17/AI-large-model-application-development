@@ -1,0 +1,45 @@
+# 构建系统配置
+[build-system]
+requires = ["uv", "setuptools", "wheel"] # 构建系统所需的依赖包
+build-backend = "uv.build.api"           # 使用uv作为构建后端
+
+# 项目元数据
+[project]
+name = "langchain_project" # 项目名称
+version = "0.1.0" # 项目版本
+description = "A project using LangChain and related libraries." # 项目描述
+authors = [
+    { name = "lanshi", email = "yzs20030317@gmail.com" }, # 作者信息
+]
+license = { text = "MIT" } # 许可证信息
+readme = "README.md" # 读取文件路径
+requires-python = ">=3.10,<3.12" # Python版本要求
+keywords = ["langchain", "openai", "machine learning"] # 关键字
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+] # 分类器
+dependencies = [
+    "langchain==0.3.26",
+    "langchain-community==0.3.26",
+    "openai==1.97.0",
+    "pydantic==2.11.6",
+    "requests==2.31.0",
+    "tiktoken==0.9.0",
+    "transformers==4.53.2",
+    "torch==2.7.0",
+    "pandas==2.0.1",
+    "numpy==2.2.6",
+    "scikit-learn==1.7.0",
+    "matplotlib==3.10.1",
+    "seaborn==0.13.1",
+]
+# 可选依赖包
+[project.optional-dependencies]
+dev = ["pytest>=8.4.0", "black>=25.1.0", "flake8>=7.2.0"]
+# URL配置
+[project.urls]
+"Homepage" = "https://lanshi.xyz"
+"Source" = "https://github.com/lanshi17/AI-large-model-application-development"
+"Issue Tracker" = "https://github.com/lanshi17/AI-large-model-application-development/issues"

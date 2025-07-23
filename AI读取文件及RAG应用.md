@@ -226,12 +226,185 @@
   ```
 
 ## 文本块应用
+- TextLoader example
+    ```python
+    from langchain_community.document_loaders import TextLoader
+    from langchain_openai import ChatOpenAI
+    from langchain_core.prompts import ChatPromptTemplate
+    from langchain_core.runnables import RunnablePassthrough, RunnableParallel
+    from langchain_core.output_parsers import StrOutputParser
+    from pydantic import SecretStr
+    import os
+    from dotenv import load_dotenv
 
+    # 加载 .env 文件
+    load_dotenv()
+    # 初始化模型
+    model = ChatOpenAI(
+        model="qwen-turbo",
+        api_key=SecretStr(os.getenv("DASHSCOPE_API_KEY") or ""),
+        base_url=os.getenv("BASE_URL"),
+        temperature=0.3,
+        frequency_penalty=1.5
+    )
 
+    # 自定义TextLoader示例
+    loader = TextLoader("example.txt", encoding="utf-8")
+    documents = loader.load()
+
+    # 提取文档内容
+    document_content = documents[0].page_content if documents else ""
+
+    # 构建Prompt模板
+    prompt = ChatPromptTemplate.from_messages([
+        ("system", "你是一个擅长总结内容的助手。"),
+        ("human", "请总结以下文本内容：\n{content}")
+    ])
+
+    # 使用LCEL构建链式调用
+    chain = (
+        RunnableParallel(content=RunnablePassthrough())  # 将输入直接传递给prompt中的{content}
+        | prompt
+        | model
+        | StrOutputParser()
+    )
+
+    # 执行并输出结果
+    summary = chain.invoke(document_content)
+    print(summary)
+
+    ```
 
 ## 文本向量化--嵌入向量
+- OpenAIEmbeddings 示例
+    ```python
+    from langchain_openai import OpenAIEmbeddings
+    from langchain_core.pydantic_v1 import SecretStr
+    import os
+    from dotenv import load_dotenv
 
+    # 加载环境变量
+    load_dotenv()
+
+    # 初始化百炼大模型text-embedding-v4
+    embeddings = OpenAIEmbeddings(
+        model="text-embedding-v4",
+        api_key=SecretStr(os.getenv("DASHSCOPE_API_KEY") or ""),
+        base_url="https://dashscope.aliyuncs.com/api/v1/services/embeddings/text-embedding-v4"
+    )
+
+    # 示例文本
+    texts = [
+        "这是一个示例文本。",
+        "这是另一个示例文本，用于生成嵌入向量。"
+    ]
+
+    # 生成嵌入向量
+    try:
+        embedding_vectors = embeddings.embed_documents(texts)
+        print(f"成功生成 {len(embedding_vectors)} 个嵌入向量，每个向量维度为 {len(embedding_vectors[0])}")
+    except Exception as e:
+        print(f"生成嵌入向量时出错: {e}")
+
+    # 为单个文本生成嵌入向量
+    single_text = "这是单个文本示例。"
+    try:
+        single_embedding = embeddings.embed_query(single_text)
+        print(f"单个文本嵌入向量维度: {len(single_embedding)}")
+    except Exception as e:
+        print(f"生成单个文本嵌入向量时出错: {e}")
+
+    ```
 ## 向量数据库
+
+通过向量距离进行搜索匹配
+ - FAISS 向量数据库示例
+    ```python
+    import os
+    import faiss
+    import numpy as np
+    from dotenv import load_dotenv
+    from langchain_community.embeddings import DashScopeEmbeddings
+    from langchain_community.vectorstores import FAISS
+    from langchain_core.documents import Document
+
+    # 加载环境变量
+    load_dotenv()
+
+    # 初始化DashScope嵌入模型
+    embeddings = DashScopeEmbeddings(
+        model="text-embedding-v4",
+        dashscope_api_key=os.getenv("DASHSCOPE_API_KEY")
+    )
+
+    # 创建示例文档
+    documents = [
+        Document(page_content="风急天高猿啸哀，渚清沙白鸟飞回。"),
+        Document(page_content="无边落木萧萧下，不尽长江滚滚来。"),
+        Document(page_content="万里悲秋常作客，百年多病独登台。"),
+        Document(page_content="艰难苦恨繁霜鬓，潦倒新停浊酒杯。")
+    ]
+
+    # 创建FAISS向量数据库
+    try:
+        vector_store = FAISS.from_documents(
+            documents=documents,
+            embedding=embeddings
+        )
+        print("FAISS向量数据库创建成功")
+    except Exception as e:
+        print(f"创建FAISS向量数据库时出错: {e}")
+
+    # 保存向量数据库到本地
+    try:
+        vector_store.save_local("faiss_index")
+        print("向量数据库已保存到本地")
+    except Exception as e:
+        print(f"保存向量数据库时出错: {e}")
+
+    # 从本地加载向量数据库
+    try:
+        loaded_vector_store = FAISS.load_local(
+            folder_path="faiss_index",
+            embeddings=embeddings,
+            allow_dangerous_deserialization=True
+        )
+        print("向量数据库加载成功")
+    except Exception as e:
+        print(f"加载向量数据库时出错: {e}")
+
+    # 执行相似性搜索
+    query = "描述秋天景象的诗句"
+    try:
+        # 生成查询嵌入向量
+        query_embedding = embeddings.embed_query(query)
+        
+        # 使用FAISS进行相似性搜索
+        docs = loaded_vector_store.similarity_search(query, k=2)
+        print(f"\n与'{query}'相关的文档:")
+        for i, doc in enumerate(docs, 1):
+            print(f"{i}. {doc.page_content}")
+            
+        # 也可以使用自定义嵌入向量进行搜索
+        docs_by_vector = loaded_vector_store.similarity_search_by_vector(query_embedding, k=2)
+        print(f"\n通过向量搜索到的文档:")
+        for i, doc in enumerate(docs_by_vector, 1):
+            print(f"{i}. {doc.page_content}")
+            
+    except Exception as e:
+        print(f"执行相似性搜索时出错: {e}")
+
+    # 获取向量数据库的FAISS索引对象，可用于更底层的操作
+    try:
+        faiss_index = loaded_vector_store.index
+        print(f"\nFAISS索引信息:")
+        print(f"索引类型: {type(faiss_index)}")
+        print(f"向量维度: {faiss_index.d}")
+        print(f"向量数量: {faiss_index.ntotal}")
+    except Exception as e:
+        print(f"获取FAISS索引信息时出错: {e}")
+
+    ```
 
 ## 自动化RAG对话链
 

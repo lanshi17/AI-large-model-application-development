@@ -1,0 +1,146 @@
+跳转至
+logo
+uv-zh-cn
+管理包
+
+
+搜索
+
+ uv-zh-cn
+48
+1
+简介
+入门
+安装
+第一步
+功能
+获取帮助
+指南
+安装 Python
+运行脚本
+使用工具
+处理项目
+发布包
+集成
+概念
+项目
+工具
+Python 版本
+解析
+缓存
+配置
+配置文件
+环境变量
+身份验证
+包索引
+安装程序
+pip 接口
+使用环境
+管理包
+检查包
+声明依赖项
+锁定环境
+与pip的兼容性
+参考
+命令
+设置
+构建失败
+解析器
+性能基准
+版本控制
+平台支持
+安装包
+可编辑包
+从文件安装包
+卸载包
+管理包
+安装包
+要将包安装到虚拟环境中，例如安装 Flask：
+
+
+uv pip install flask
+要启用可选依赖项安装包，例如安装带有 "dotenv" 附加项的 Flask：
+
+
+uv pip install "flask[dotenv]"
+要一次安装多个包，例如安装 Flask 和 Ruff：
+
+
+uv pip install flask ruff
+要安装带有约束的包，例如安装 v0.2.0 或更新版本的 Ruff：
+
+
+uv pip install 'ruff>=0.2.0'
+要安装特定版本的包，例如安装 v0.3.0 版本的 Ruff：
+
+
+uv pip install 'ruff==0.3.0'
+要从本地磁盘安装包：
+
+
+uv pip install "ruff @ ./projects/ruff"
+要从 GitHub 安装包：
+
+
+uv pip install "git+https://github.com/astral-sh/ruff"
+要从 GitHub 安装特定引用的包：
+
+
+# 安装某个标签
+uv pip install "git+https://github.com/astral-sh/ruff@v0.2.0"
+
+# 安装某个提交
+uv pip install "git+https://github.com/astral-sh/ruff@1fadefa67b26508cc59cf38e6130bde2243c929d"
+
+# 安装某个分支
+uv pip install "git+https://github.com/astral-sh/ruff@main"
+有关从私有仓库安装的更多信息，请参阅 Git 认证 文档。
+
+可编辑包
+可编辑包不需要重新安装即可使源代码的更改生效。
+
+要将当前项目安装为可编辑包：
+
+
+uv pip install -e .
+要将另一个目录中的项目安装为可编辑包：
+
+
+uv pip install -e "ruff @ ./project/ruff"
+从文件安装包
+可以从标准文件格式一次性安装多个包。
+
+从 requirements.txt 文件安装：
+
+
+uv pip install -r requirements.txt
+有关 requirements.txt 文件的更多信息，请参阅 uv pip compile 文档。
+
+从 pyproject.toml 文件安装：
+
+
+uv pip install -r pyproject.toml
+从 pyproject.toml 文件安装时启用可选依赖项，例如启用 "foo" 附加项：
+
+
+uv pip install -r pyproject.toml --extra foo
+从 pyproject.toml 文件安装时启用所有可选依赖项：
+
+
+uv pip install -r pyproject.toml --all-extras
+卸载包
+要卸载包，例如卸载 Flask：
+
+
+uv pip uninstall flask
+要卸载多个包，例如卸载 Flask 和 Ruff：
+
+
+uv pip uninstall flask ruff
+ 回到页面顶部
+上一页
+使用环境
+下一页
+检查包
+Made with Material for MkDocs
+
