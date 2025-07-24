@@ -1,0 +1,177 @@
+Traceback (most recent call last):
+  File "/home/lanshi/Documents/AI-large-model-application-development/code/RAG应用/RAG_07.py", line 301, in <module>
+    result = stuff_rag_chain.invoke({
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_core/runnables/base.py", line 5434, in invoke
+    return self.bound.invoke(
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_core/runnables/base.py", line 3044, in invoke
+    input_ = context.run(step.invoke, input_, config, **kwargs)
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_core/runnables/passthrough.py", line 511, in invoke
+    return self._call_with_config(self._invoke, input, config, **kwargs)
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_core/runnables/base.py", line 1939, in _call_with_config
+    context.run(
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_core/runnables/config.py", line 429, in call_func_with_variable_args
+    return func(input, **kwargs)  # type: ignore[call-arg]
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_core/runnables/passthrough.py", line 497, in _invoke
+    **self.mapper.invoke(
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_core/runnables/base.py", line 3773, in invoke
+    output = {key: future.result() for key, future in zip(steps, futures)}
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_core/runnables/base.py", line 3773, in <dictcomp>
+    output = {key: future.result() for key, future in zip(steps, futures)}
+  File "/usr/lib/python3.10/concurrent/futures/_base.py", line 458, in result
+    return self.__get_result()
+  File "/usr/lib/python3.10/concurrent/futures/_base.py", line 403, in __get_result
+    raise self._exception
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_core/runnables/base.py", line 3757, in _invoke_step
+    return context.run(
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_core/runnables/base.py", line 5434, in invoke
+    return self.bound.invoke(
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_core/runnables/branch.py", line 235, in invoke
+    output = runnable.invoke(
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_core/runnables/base.py", line 3046, in invoke
+    input_ = context.run(step.invoke, input_, config)
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_core/retrievers.py", line 259, in invoke
+    result = self._get_relevant_documents(
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_core/vectorstores/base.py", line 1079, in _get_relevant_documents
+    docs = self.vectorstore.similarity_search(query, **kwargs_)
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_community/vectorstores/faiss.py", line 643, in similarity_search
+    docs_and_scores = self.similarity_search_with_score(
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_community/vectorstores/faiss.py", line 516, in similarity_search_with_score
+    docs = self.similarity_search_with_score_by_vector(
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_community/vectorstores/faiss.py", line 417, in similarity_search_with_score_by_vector
+    scores, indices = self.index.search(vector, k if filter is None else fetch_k)
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/faiss/__init__.py", line 308, in replacement_search
+    assert d == self.d
+AssertionError
+Traceback (most recent call last):
+  File "/home/lanshi/Documents/AI-large-model-application-development/code/RAG应用/RAG_07.py", line 312, in <module>
+    result = map_reduce_rag_chain.invoke({
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_core/runnables/base.py", line 3044, in invoke
+    input_ = context.run(step.invoke, input_, config, **kwargs)
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_core/runnables/base.py", line 3773, in invoke
+    output = {key: future.result() for key, future in zip(steps, futures)}
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_core/runnables/base.py", line 3773, in <dictcomp>
+    output = {key: future.result() for key, future in zip(steps, futures)}
+  File "/usr/lib/python3.10/concurrent/futures/_base.py", line 458, in result
+    return self.__get_result()
+  File "/usr/lib/python3.10/concurrent/futures/_base.py", line 403, in __get_result
+    raise self._exception
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_core/runnables/base.py", line 3757, in _invoke_step
+    return context.run(
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_core/runnables/base.py", line 5434, in invoke
+    return self.bound.invoke(
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_core/runnables/branch.py", line 235, in invoke
+    output = runnable.invoke(
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_core/runnables/base.py", line 3046, in invoke
+    input_ = context.run(step.invoke, input_, config)
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_core/retrievers.py", line 259, in invoke
+    result = self._get_relevant_documents(
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_core/vectorstores/base.py", line 1079, in _get_relevant_documents
+    docs = self.vectorstore.similarity_search(query, **kwargs_)
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_community/vectorstores/faiss.py", line 643, in similarity_search
+    docs_and_scores = self.similarity_search_with_score(
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_community/vectorstores/faiss.py", line 516, in similarity_search_with_score
+    docs = self.similarity_search_with_score_by_vector(
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_community/vectorstores/faiss.py", line 417, in similarity_search_with_score_by_vector
+    scores, indices = self.index.search(vector, k if filter is None else fetch_k)
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/faiss/__init__.py", line 308, in replacement_search
+    assert d == self.d
+AssertionError
+Traceback (most recent call last):
+  File "/home/lanshi/Documents/AI-large-model-application-development/code/RAG应用/RAG_07.py", line 323, in <module>
+    result = refine_rag_chain.invoke({
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_core/runnables/base.py", line 3044, in invoke
+    input_ = context.run(step.invoke, input_, config, **kwargs)
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_core/runnables/base.py", line 3773, in invoke
+    output = {key: future.result() for key, future in zip(steps, futures)}
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_core/runnables/base.py", line 3773, in <dictcomp>
+    output = {key: future.result() for key, future in zip(steps, futures)}
+  File "/usr/lib/python3.10/concurrent/futures/_base.py", line 458, in result
+    return self.__get_result()
+  File "/usr/lib/python3.10/concurrent/futures/_base.py", line 403, in __get_result
+    raise self._exception
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_core/runnables/base.py", line 3757, in _invoke_step
+    return context.run(
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_core/runnables/base.py", line 5434, in invoke
+    return self.bound.invoke(
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_core/runnables/branch.py", line 235, in invoke
+    output = runnable.invoke(
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_core/runnables/base.py", line 3046, in invoke
+    input_ = context.run(step.invoke, input_, config)
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_core/retrievers.py", line 259, in invoke
+    result = self._get_relevant_documents(
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_core/vectorstores/base.py", line 1079, in _get_relevant_documents
+    docs = self.vectorstore.similarity_search(query, **kwargs_)
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_community/vectorstores/faiss.py", line 643, in similarity_search
+    docs_and_scores = self.similarity_search_with_score(
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_community/vectorstores/faiss.py", line 516, in similarity_search_with_score
+    docs = self.similarity_search_with_score_by_vector(
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_community/vectorstores/faiss.py", line 417, in similarity_search_with_score_by_vector
+    scores, indices = self.index.search(vector, k if filter is None else fetch_k)
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/faiss/__init__.py", line 308, in replacement_search
+    assert d == self.d
+AssertionError
+Traceback (most recent call last):
+  File "/home/lanshi/Documents/AI-large-model-application-development/code/RAG应用/RAG_07.py", line 334, in <module>
+    result = rerank_rag_chain.invoke({
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_core/runnables/base.py", line 3044, in invoke
+    input_ = context.run(step.invoke, input_, config, **kwargs)
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_core/runnables/base.py", line 3773, in invoke
+    output = {key: future.result() for key, future in zip(steps, futures)}
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_core/runnables/base.py", line 3773, in <dictcomp>
+    output = {key: future.result() for key, future in zip(steps, futures)}
+  File "/usr/lib/python3.10/concurrent/futures/_base.py", line 458, in result
+    return self.__get_result()
+  File "/usr/lib/python3.10/concurrent/futures/_base.py", line 403, in __get_result
+    raise self._exception
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_core/runnables/base.py", line 3757, in _invoke_step
+    return context.run(
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_core/runnables/base.py", line 5434, in invoke
+    return self.bound.invoke(
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_core/runnables/branch.py", line 235, in invoke
+    output = runnable.invoke(
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_core/runnables/base.py", line 3046, in invoke
+    input_ = context.run(step.invoke, input_, config)
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_core/retrievers.py", line 259, in invoke
+    result = self._get_relevant_documents(
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_core/vectorstores/base.py", line 1079, in _get_relevant_documents
+    docs = self.vectorstore.similarity_search(query, **kwargs_)
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_community/vectorstores/faiss.py", line 643, in similarity_search
+    docs_and_scores = self.similarity_search_with_score(
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_community/vectorstores/faiss.py", line 516, in similarity_search_with_score
+    docs = self.similarity_search_with_score_by_vector(
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/langchain_community/vectorstores/faiss.py", line 417, in similarity_search_with_score_by_vector
+    scores, indices = self.index.search(vector, k if filter is None else fetch_k)
+  File "/home/lanshi/.venv/langchain/lib/python3.10/site-packages/faiss/__init__.py", line 308, in replacement_search
+    assert d == self.d
+AssertionError
+==================================================
+RAG多方法测试程序
+==================================================
+Python版本: 3.10.18 (main, Jun  4 2025, 08:56:00) [GCC 13.3.0]
+当前工作目录: /home/lanshi/Documents/AI-large-model-application-development/code/RAG应用
+
+开始初始化模型...
+✓ LLM模型初始化成功
+✓ Embeddings模型初始化成功
+尝试加载FAISS数据库: /home/lanshi/Documents/AI-large-model-application-development/code/RAG应用/../db/watermelon_book_faiss
+FAISS路径是否存在: True
+✓ FAISS数据库加载成功
+=== 使用Stuff方法 ===
+Stuff方法出错: 
+
+=== 使用Map-Reduce方法 ===
+Map-Reduce方法出错: 
+
+=== 使用Refine方法 ===
+Refine方法出错: 
+
+=== 使用Map-Rerank方法 ===
+Map-Rerank方法出错: 

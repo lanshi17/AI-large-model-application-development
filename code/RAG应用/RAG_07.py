@@ -1,8 +1,9 @@
-from langchain.chains import create_history_aware_retriever, create_retrieval_chain
+from langchain.chains import create_history_aware_retriever
 from langchain.chains.combine_documents import create_stuff_documents_chain
+from langchain.chains.retrieval import create_retrieval_chain
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
 from langchain_core.messages import HumanMessage, AIMessage
-from langchain_core.runnables import RunnablePassthrough, RunnableLambda
+from langchain_core.runnables import RunnablePassthrough, RunnableLambda, RunnableParallel
 from langchain_core.output_parsers import StrOutputParser
 from langchain_community.chat_models import ChatTongyi
 from langchain_community.vectorstores import FAISS
@@ -16,11 +17,11 @@ load_dotenv()
 
 # 初始化通义千问模型和嵌入
 llm = ChatTongyi(
-    model="qwen-max",  # 使用通义千问v4模型
+    model="qwen-max",  
     api_key=SecretStr(os.getenv("DASHSCOPE_API_KEY") or "")
 )
 embeddings = DashScopeEmbeddings(
-    model="text-embedding-v1",
+    model="text-embedding-v4",
     dashscope_api_key=os.getenv("DASHSCOPE_API_KEY")
 )
 
@@ -79,11 +80,18 @@ reduce_template = """以下是一组文档摘要:
 reduce_prompt = PromptTemplate.from_template(reduce_template)
 
 # 创建Map-Reduce链（使用LCEL）
-def format_docs(docs):
-    return "\n\n".join(doc.page_content for doc in docs)
-
 def process_documents_map_reduce(input_dict):
-    """处理Map-Reduce逻辑"""
+    """
+    处理Map-Reduce逻辑
+    
+    Args:
+        input_dict (dict): 包含输入问题和上下文文档的字典
+            - "input": 用户的查询问题
+            - "context": 检索到的相关文档列表
+    
+    Returns:
+        dict: 包含最终答案的字典，格式为 {"answer": final_answer}
+    """
     question = input_dict["input"]
     docs = input_dict["context"]
     
@@ -104,18 +112,44 @@ def process_documents_map_reduce(input_dict):
         "question": question
     })
     
-    return final_answer
+    return {"answer": final_answer}
 
-map_reduce_chain = RunnableLambda(process_documents_map_reduce)
+def format_input_for_map_reduce(input_dict):
+    """
+    格式化输入以适配Map-Reduce链
+    
+    Args:
+        input_dict (dict): 原始输入字典
+        
+    Returns:
+        dict: 格式化后的字典，包含input和context字段
+    """
+    return {
+        "input": input_dict["input"],
+        "context": input_dict["context"]
+    }
+
+map_reduce_chain = RunnableLambda(format_input_for_map_reduce) | RunnableLambda(process_documents_map_reduce)
 
 # 3. Refine方法 - 迭代式优化答案
 def refine_documents(input_dict):
-    """Refine方法实现"""
+    """
+    Refine方法实现，通过迭代方式逐步优化答案
+    
+    Args:
+        input_dict (dict): 包含输入问题和上下文文档的字典
+            - "input": 用户的查询问题
+            - "context": 检索到的相关文档列表
+    
+    Returns:
+        dict: 包含最终答案的字典，格式为 {"answer": current_answer}
+    """
     question = input_dict["input"]
     docs = input_dict["context"]
     
     # 初始答案
-    initial_answer = llm.invoke(question).content
+    initial_response = llm.invoke(question)
+    initial_answer = initial_response.content if hasattr(initial_response, 'content') else str(initial_response)
     
     # 迭代优化
     refine_prompt_template = PromptTemplate.from_template(
@@ -134,13 +168,23 @@ def refine_documents(input_dict):
             "context_str": doc.page_content
         })
     
-    return current_answer
+    return {"answer": current_answer}
 
 refine_chain = RunnableLambda(refine_documents)
 
 # 4. Map-Rerank方法 - 对文档进行重新排序
 def map_rerank_documents(input_dict):
-    """Map-Rerank方法实现"""
+    """
+    Map-Rerank方法实现，为每个文档生成答案并评分，返回最高分的答案
+    
+    Args:
+        input_dict (dict): 包含输入问题和上下文文档的字典
+            - "input": 用户的查询问题
+            - "context": 检索到的相关文档列表
+    
+    Returns:
+        dict: 包含最终答案的字典，格式为 {"answer": answer}
+    """
     question = input_dict["input"]
     docs = input_dict["context"]
     
@@ -158,38 +202,77 @@ def map_rerank_documents(input_dict):
     
     doc_scores = []
     for doc in docs:
-        response = rerank_chain.invoke({
-            "question": question,
-            "context": doc.page_content
-        })
-        
-        # 解析响应中的分数和答案
         try:
+            response = rerank_chain.invoke({
+                "question": question,
+                "context": doc.page_content
+            })
+            
+            # 解析响应中的分数和答案
             lines = response.split('\n')
-            score_line = [line for line in lines if line.startswith("分数:")][0]
-            answer_line = [line for line in lines if line.startswith("答案:")][0]
-            score = int(score_line.split(":")[1].strip())
-            answer = answer_line.split(":")[1].strip()
-            doc_scores.append((score, answer, doc.page_content))
-        except:
+            score_line = None
+            answer_line = None
+            
+            for line in lines:
+                if line.startswith("分数:"):
+                    score_line = line
+                elif line.startswith("答案:"):
+                    answer_line = line
+                    
+            if score_line and answer_line:
+                score = int(score_line.split(":")[1].strip())
+                answer = answer_line.split(":")[1].strip()
+                doc_scores.append((score, answer))
+            else:
+                # 如果格式不正确，给默认低分
+                doc_scores.append((0, response))
+        except Exception:
             # 如果解析失败，给默认低分
-            doc_scores.append((0, response, doc.page_content))
+            doc_scores.append((0, "无法解析答案"))
     
     # 按分数排序，返回最高分的答案
     doc_scores.sort(key=lambda x: x[0], reverse=True)
     
-    if doc_scores:
-        return doc_scores[0][1]  # 返回最高分的答案
+    if doc_scores and doc_scores[0][0] > 0:
+        return {"answer": doc_scores[0][1]}  # 返回最高分的答案
     else:
-        return "无法生成答案"
+        return {"answer": "无法生成相关答案"}
 
 rerank_chain = RunnableLambda(map_rerank_documents)
 
 # 创建不同的检索链
 stuff_rag_chain = create_retrieval_chain(history_aware_retriever, stuff_chain)
-map_reduce_rag_chain = create_retrieval_chain(history_aware_retriever, map_reduce_chain)
-refine_rag_chain = create_retrieval_chain(history_aware_retriever, refine_chain)
-rerank_rag_chain = create_retrieval_chain(history_aware_retriever, rerank_chain)
+
+# 为其他方法创建完整的检索链
+# 使用RunnableParallel并行处理输入，然后传递给map_reduce_chain
+map_reduce_rag_chain = (
+    RunnableParallel({
+        "input": lambda x: x["input"],
+        "context": history_aware_retriever,
+        "chat_history": lambda x: x["chat_history"]
+    })
+    | map_reduce_chain
+)
+
+# 使用RunnableParallel并行处理输入，然后传递给refine_chain
+refine_rag_chain = (
+    RunnableParallel({
+        "input": lambda x: x["input"],
+        "context": history_aware_retriever,
+        "chat_history": lambda x: x["chat_history"]
+    })
+    | refine_chain
+)
+
+# 使用RunnableParallel并行处理输入，然后传递给rerank_chain
+rerank_rag_chain = (
+    RunnableParallel({
+        "input": lambda x: x["input"],
+        "context": history_aware_retriever,
+        "chat_history": lambda x: x["chat_history"]
+    })
+    | rerank_chain
+)
 
 # 运行示例
 chat_history = []
