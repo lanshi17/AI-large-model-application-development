@@ -23,6 +23,7 @@ classifiers = [
 dependencies = [
     "langchain==0.3.26",
     "langchain-community==0.3.26",
+    "langchain_openai",
     "openai==1.97.0",
     "pydantic==2.11.6",
     "requests==2.31.0",
@@ -30,10 +31,15 @@ dependencies = [
     "transformers==4.53.2",
     "torch==2.7.0",
     "pandas==2.0.1",
-    "numpy==2.2.6",
+    "numpy==1.26.4",
     "scikit-learn==1.7.0",
     "matplotlib==3.10.1",
     "seaborn==0.13.1",
+    "faiss-gpu==1.7.2",
+    "dashscope==1.24.0",
+    "pypdf==5.8.0",
+    "pymupdf",
+    "ocrmypdf==16.10.4",
 ]
 # 可选依赖包
 [project.optional-dependencies]
